@@ -10,9 +10,8 @@ import (
 )
 
 type Service struct {
-	store      *storage.Store
-	max        int
-	lastPhotos []model.Record
+	store *storage.Store
+	max   int
 }
 
 func New(st *storage.Store, max int) *Service {
@@ -51,9 +50,6 @@ func (s *Service) AddPhoto(ctx context.Context, albumID string, r model.Record) 
 	}
 	r.CreatedAt = time.Now().UTC()
 	a.Photos = append(a.Photos, r)
-	if len(s.lastPhotos) > 0 {
-		s.lastPhotos[0].Caption = r.Caption
-	}
 	a.Version++
 	if e = s.store.SaveAlbum(a); e != nil {
 		return a, e
@@ -99,6 +95,5 @@ func (s *Service) Snapshot(ctx context.Context, id, code string) ([]model.Record
 		return nil, e
 	}
 	visible := a.VisiblePhotos()
-	s.lastPhotos = visible
 	return visible, nil
 }
